@@ -5,20 +5,25 @@ import pretty from 'pretty-time'
  */
 
 export class Timer {
+  /** @type {string} */
+  label
   /** @type {[number, number]} */
   start
 
   /**
-   * @param {[number, number]} start
+   * @param {string} [label]
+   * @param {[number, number]} [start]
    */
-  static start(start = process.hrtime()) {
-    return new Timer(start)
+  static start(label, start = process.hrtime()) {
+    return new Timer(label, start)
   }
 
   /**
-   * @param {[number, number]} start
+   * @param {string} [label]
+   * @param {[number, number]} [start]
    */
-  constructor(start) {
+  constructor(label, start) {
+    this.label = label
     this.start = start
   }
 
@@ -27,6 +32,8 @@ export class Timer {
    */
   end(smallest) {
     const time = process.hrtime(this.start)
-    return pretty(time, smallest || 's')
+    return this.label
+      ? `${this.label} took: ${pretty(time, smallest || 's')}`
+      : pretty(time, smallest || 's')
   }
 }
