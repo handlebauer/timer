@@ -27,6 +27,7 @@
     "build": "shx rm -rf ./lib && rollup -c",
     "types": "shx rm -rf ./types && tsc -p jsconfig.json",
     "prepublishOnly": "npm run types && npm run build",
+    "postinstall": "patch-package",
     "test": "ava",
     "prepare": "husky install"
   },
@@ -44,6 +45,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "patch-package": "^7.0.0",
     "pretty-time": "^1.1.0"
   }
 }

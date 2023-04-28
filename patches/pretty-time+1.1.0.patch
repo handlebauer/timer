@@ -1,0 +1,83 @@
+diff --git a/node_modules/pretty-time/index.js b/node_modules/pretty-time/index.js
+index d768ae3..b9cd781 100644
+--- a/node_modules/pretty-time/index.js
++++ b/node_modules/pretty-time/index.js
+@@ -9,8 +9,13 @@
+ 
+ const utils = require('./utils');
+ 
++/**
++ * @param {number | [number, number]} time 
++ * @param {string} smallest 
++ * @param {string} [digits] 
++ */
+ module.exports = (time, smallest, digits) => {
+-  const isNumber = /^[0-9]+$/.test(time);
++  const isNumber = /^[0-9]+$/.test(time.toString());
+   if (!isNumber && !Array.isArray(time)) {
+     throw new TypeError('expected an array or number in nanoseconds');
+   }
+@@ -23,13 +28,13 @@ module.exports = (time, smallest, digits) => {
+     smallest = null;
+   }
+ 
+-  let num = isNumber ? time : utils.nano(time);
++  let num = isNumber ? /** @type {number} */ (time) : utils.nano(/** @type {[number, number]} */ (time));
+   let res = '';
+   let prev;
+ 
+   for (const uom of Object.keys(utils.scale)) {
+     const step = utils.scale[uom];
+-    let inc = num / step;
++    let inc = Number(num) / step;
+ 
+     if (smallest && utils.isSmallest(uom, smallest)) {
+       inc = utils.round(inc, digits);
+diff --git a/node_modules/pretty-time/utils.js b/node_modules/pretty-time/utils.js
+index b84a63f..7a47b31 100644
+--- a/node_modules/pretty-time/utils.js
++++ b/node_modules/pretty-time/utils.js
+@@ -1,5 +1,11 @@
++/**
++ * @param {[number, number]} time 
++ */
+ exports.nano = time => +time[0] * 1e9 + +time[1];
+ 
++/**
++ * @type {{ [key: string]: number }}
++ */
+ exports.scale = {
+   'w': 6048e11,
+   'd': 864e11,
+@@ -11,6 +17,9 @@ exports.scale = {
+   'ns': 1,
+ };
+ 
++/**
++ * @type {{ [key: string]: RegExp }}
++ */
+ exports.regex = {
+  'w': /^(w((ee)?k)?s?)$/,
+  'd': /^(d(ay)?s?)$/,
+@@ -22,11 +31,20 @@ exports.regex = {
+  'ns': /^(nano(second)?s?|ns?)$/,
+ };
+ 
++/**
++ * @param {string} uom 
++ * @param {string} unit 
++ */
+ exports.isSmallest = function(uom, unit) {
+   return exports.regex[uom].test(unit);
+ };
+ 
++/**
++ * @param {number} num 
++ * @param {string} digits 
++ * @returns {number}
++ */
+ exports.round = function(num, digits) {
+   const n = Math.abs(num);
+-  return /[0-9]/.test(digits) ? n.toFixed(digits) : Math.round(n);
++  return /[0-9]/.test(digits) ? Number(n.toFixed(Number(digits))) : Math.round(/** @type {number} */ (n));
+ };
